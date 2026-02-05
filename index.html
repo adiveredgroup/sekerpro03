@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>סקר עצים - עבודה רציפה</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; padding: 15px; background: #f0f2f5; direction: rtl; margin-bottom: 120px; }
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .hidden { display: none; }
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 13px; }
+        input, select { width: 100%; padding: 12px; margin-top: 4px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+        .row { display: flex; gap: 5px; }
+        .row > div { flex: 1; }
+        button { width: 100%; padding: 15px; border-radius: 10px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .add-btn { background: #007aff; color: white; }
+        .finish-btn { background: #34c759; color: white; }
+        #uploadStatus { position: fixed; bottom: 80px; left: 15px; right: 15px; background: #333; color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; display: none; text-align: center; z-index: 1000; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div id="setupStep" class="card">
+        <label>שם הפרויקט (תיקייה בדרייב):</label>
+        <input type="text" id="projectName" placeholder="למשל: סקר_מרחוק">
+        <button class="add-btn" onclick="startSurvey()">התחל סקר</button>
+    </div>
+
+    <div id="surveyStep" class="hidden">
+        <div id="uploadStatus">מעלה נתונים ברקע... <span id="queueCount">0</span> נותרו</div>
+        
+        <div class="card">
+            <h3 id="projNameDisp" style="margin:0 0 10px 0; color:#007aff;"></h3>
+            
+            <label>מספר העץ:</label>
+            <input type="text" id="treeNum">
+
+            <label>תמונה ראשית:</label>
+            <input type="file" id="img1" accept="image/*" capture="camera">
+
+            <div class="row">
+                <div><label>מין העץ</label><input type="text" id="species"></div>
+                <div><label>גובה (מ')</label><input type="number" id="height" step="0.1"></div>
+            </div>
+
+            <div class="row">
+                <div><label>קוטר צמרת</label><input type="number" id="crownWidth" step="0.1"></div>
+                <div><label>קוטר גזע 1</label><input type="number" id="d1" step="0.1"></div>
+            </div>
+
+            <div class="row">
+                <div><label>קוטר גזע 2</label><input type="number" id="d2" step="0.1"></div>
+                <div><label>קוטר גזע 3</label><input type="number" id="d3" step="0.1"></div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label>מיקום (1-5)</label>
+                    <select id="loc"><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option></select>
+                </div>
+                <div>
+                    <label>בריאות (1-5)</label>
+                    <select id="health"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select>
+                </div>
+            </div>
+
+            <label>תמונות נוספות:</label>
+            <input type="file" id="extraImages" accept="image/*" capture="camera" multiple>
+
+            <label>הערות:</label>
+            <input type="text" id="notes">
+
+            <button class="add-btn" id="saveBtn" onclick="saveTree()">שמור עץ והמשך מיד</button>
+        </div>
+
+        <div id="statusCount" style="text-align:center; font-weight:bold;">עצים שנסקרו: 0</div>
+        <div id="historyList" class="card"></div>
+
+        <button class="finish-btn" id="finalBtn" onclick="finishSurvey()">סיימתי - העלה אקסל וסגור</button>
+
+        <div id="resultArea" class="hidden card">
+            <h3 style="color:#34c759;">הסקר הועלה בהצלחה!</h3>
+            <div id="linkArea" style="background:#eee; padding:10px; word-break:break-all; cursor:pointer;" onclick="copyLink()"></div>
+            <button onclick="location.reload()" style="background:#eee;">סקר חדש</button>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_URL = 'כאן_הכתובת_שלך';
+        let db = []; // נתוני הסקר המלאים
+        let uploadQueue = []; // תור העלאה של תמונות
+        let isUploading = false;
+        let currentProject = "";
+
+        function startSurvey() {
+            currentProject = document.getElementById('projectName').value.trim();
+            if (!currentProject) return alert("נא להזין שם פרויקט");
+            document.getElementById('setupStep').classList.add('hidden');
+            document.getElementById('surveyStep').classList.remove('hidden');
+            document.getElementById('projNameDisp').innerText = "פרויקט: " + currentProject;
+        }
+
+        async function compress(file) {
+            if (!file) return null;
+            return new Promise(res => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX = 1000;
+                        let w = img.width, h = img.height;
+                        if (w > h && w > MAX) { h *= MAX / w; w = MAX; }
+                        else if (h > MAX) { w *= MAX / h; h = MAX; }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        res(canvas.toDataURL('image/jpeg', 0.7));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function saveTree() {
+            const treeNum = document.getElementById('treeNum').value;
+            if (!treeNum) return alert("חובה מספר עץ");
+
+            const treeData = {
+                projectName: currentProject,
+                treeNum: treeNum,
+                species: document.getElementById('species').value,
+                height: document.getElementById('height').value,
+                crownWidth: document.getElementById('crownWidth').value,
+                d1: document.getElementById('d1').value,
+                d2: document.getElementById('d2').value,
+                d3: document.getElementById('d3').value,
+                loc: document.getElementById('loc').value,
+                health: document.getElementById('health').value,
+                notes: document.getElementById('notes').value
+            };
+
+            // דחיסה מהירה ושמירה לתור
+            const f1 = document.getElementById('img1').files[0];
+            const extras = document.getElementById('extraImages').files;
+            
+            const uploadItem = { ...treeData };
+            if (f1) uploadItem.img1 = await compress(f1);
+            uploadItem.extraImages = [];
+            for (let f of extras) {
+                uploadItem.extraImages.push(await compress(f));
+            }
+
+            // הוספה לתור העלאה
+            uploadQueue.push(uploadItem);
+            
+            // הוספה לרשימת התצוגה (בלי התמונות הכבדות כדי שלא ייתקע)
+            db.push(treeData); 
+            
+            updateUI();
+            resetForm();
+            processQueue(); // התחלת העלאה ברקע
+        }
+
+        async function processQueue() {
+            if (isUploading || uploadQueue.length === 0) return;
+            isUploading = true;
+            
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.style.display = 'block';
+            
+            while (uploadQueue.length > 0) {
+                document.getElementById('queueCount').innerText = uploadQueue.length;
+                const item = uploadQueue[0];
+                
+                try {
+                    await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(item) });
+                    uploadQueue.shift(); // הסרה מהתור אם הצליח
+                } catch (e) {
+                    console.log("Upload failed, retrying...");
+                    await new Promise(r => setTimeout(r, 3000)); // המתנה לפני ניסיון חוזר
+                }
+                document.getElementById('queueCount').innerText = uploadQueue.length;
+            }
+            
+            statusDiv.style.display = 'none';
+            isUploading = false;
+        }
+
+        function updateUI() {
+            document.getElementById('statusCount').innerText = "עצים שנסקרו: " + db.length;
+            document.getElementById('historyList').innerHTML = db.slice().reverse().map((t, i) => `
+                <div class="history-item">
+                    <span><b>#${t.treeNum}</b> - ${t.species || ''}</span>
+                    <span style="color: #34c759; font-size: 11px;">נשמר בזיכרון</span>
+                </div>
+            `).join('');
+        }
+
+        function resetForm() {
+            ["treeNum","species","height","crownWidth","d1","d2","d3","notes","img1","extraImages"].forEach(id => document.getElementById(id).value = "");
+            document.getElementById('loc').value = "5";
+            document.getElementById('health').value = "4";
+        }
+
+        async function finishSurvey() {
+            if (uploadQueue.length > 0) return alert("אנא המתיני, יש עוד " + uploadQueue.length + " עצים שעדיין עולים לדרייב...");
+            
+            const btn = document.getElementById('finalBtn');
+            btn.disabled = true; btn.innerText = "יוצר אקסל סופי...";
+
+            const res = await fetch(GOOGLE_URL, {
+                method: 'POST',
+                body: JSON.stringify({ isFinal: true, projectName: currentProject, db: db })
+            });
+            
+            const link = await res.text();
+            document.getElementById('linkArea').innerText = link;
+            document.getElementById('resultArea').classList.remove('hidden');
+            btn.classList.add('hidden');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(document.getElementById('linkArea').innerText);
+            alert("הקישור הועתק!");
+        }
+    </script>
+</body>
+</html>
