@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>סקר עצים - גרסה 27.0</title>
+    <title>סקר עצים מקצועי - v28</title>
     <style>
         body { font-family: -apple-system, sans-serif; padding: 15px; background: #f0f2f5; direction: rtl; margin-bottom: 120px; }
         .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -17,6 +17,7 @@
         .finish-btn { background: #34c759; color: white; }
         #uploadStatus { position: fixed; bottom: 80px; left: 15px; right: 15px; background: #333; color: white; padding: 10px; border-radius: 20px; font-size: 12px; display: none; text-align: center; z-index: 1000; }
         .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+        #linkArea { background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 15px; word-break: break-all; border: 1px dashed #34c759; text-align: center; color: #1b5e20; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -28,7 +29,7 @@
     </div>
 
     <div id="surveyStep" class="hidden">
-        <div id="uploadStatus">מעלה נתונים ברקע... <span id="queueCount">0</span> נותרו</div>
+        <div id="uploadStatus">מעלה תמונות ברקע... <span id="queueCount">0</span> נותרו</div>
         
         <div class="card">
             <h3 id="projNameDisp" style="margin:0 0 10px 0; color:#007aff;"></h3>
@@ -37,13 +38,13 @@
             <input type="file" id="img1" accept="image/*" capture="camera">
 
             <label>מספר העץ:</label>
-            <input type="text" id="treeNum" inputmode="decimal" placeholder="הקישי מספר עץ...">
+            <input type="text" id="treeNum" inputmode="decimal" placeholder="מספרים או אותיות...">
 
             <label>סוג העץ:</label>
-            <input type="text" id="species" list="speciesOptions" placeholder="בחרי מרשימה או הקלידי...">
+            <input type="text" id="species" list="speciesOptions" placeholder="הקלידי לחיפוש ברשימה...">
             <datalist id="speciesOptions">
-                <option value="אבוקדו אמריקני"><option value="אגוז המלך"><option value="אגוז שחור"><option value="אגון גמיש"><option value="אגס סורי"><option value="אגס קלרי"><option value="אגס תרבותי"><option value="אדנסוניה מאוצבעת"><option value="אדר ברגר"><option value="אדר כפני"><option value="אדר מילני"><option value="אדר מצוי"><option value="אדר סורי"><option value="אוג אזמלני"><option value="אוג הבורסקאים"><option value="אוג הדונג"><option value="אוג הקופל"><option value="אורן ארך-עלים"><option value="אורן החוף"><option value="אורן הצנובר"><option value="אורן ירושלים"><option value="אורן קנרי"><option value="אורן קפריסאי"><option value="אזדרכת מצויה"><option value="אילנתה בלוטית"><option value="אינגה אמיתית"><option value="איקליפטוס אדום-מצנפת"><option value="איקליפטוס בהיר-קליפה"><option value="איקליפטוס המקור"><option value="איקליפטוס הצאוורון"><option value="איקליפטוס טורלי (קורימביה טורלי)"><option value="איקליפטוס לימוני"><option value="איקליפטוס מסמרי"><option value="אלביציה ורודה"><option value="אלביציה צהובה"><option value="אלה אטלנטית"><option value="אלה ארץ-ישראלית"><option value="אלה סינית"><option value="אלון אנגלי"><option value="אלון ארך-עוקצים"><option value="אלון הגלעין"><option value="אלון הלבנון"><option value="אלון השעם"><option value="אלון התבור"><option value="אלון התולע"><option value="אלון מצוי"><option value="אלון פקאן (קאריה)"><option value="אלון פרסי"><option value="אלון צר-עלים"><option value="אלון שסוע"><option value="אלמוגן רחב-עלים (הודי)"><option value="אנונה קשקשית"><option value="אספסת שיחנית"><option value="אפרסמון סיני"><option value="אפרסק מצוי"><option value="אצבעונית הודית"><option value="אקציה שיחנית"><option value="אראוקריה רמה"><option value="אריוביוטריה יפנית (שסק)"><option value="ארז אטלנטי"><option value="ארז הלבנון"><option value="אשחר רחב-עלים"><option value="אשל היאור (הפרקים)"><option value="בואיניה מגוונת"><option value="בואיניה ססגונית (גלונית)"><option value="בוקיצה קטנת-עלים (אולמוס)"><option value="בוקיצה שעירה"><option value="בוצין מפורץ"><option value="בורסרה"><option value="ביגנוניית היינץ"><option value="בימיה"><option value="בניאנה בנימינה (פיקוס)"><option value="בר-זית בינוני"><option value="בר-מאושר"><option value="ברוש מצוי"><option value="ברוש מצוי 'צריפי'"><option value="ברוש אריזוני"><option value="ברוש הלימון"><option value="ברוש קליפורני"><option value="ברכיכיטון אוסטרלי"><option value="ברכיכיטון הסלעים"><option value="ברכיכיטון דו-גוני"><option value="ברכיכיטון מגוון"><option value="ברכיכיטון צפצפתי"><option value="ג'קראנדה (סיגלון)"><option value="גביעונית"><option value="גוויאבה מצויה"><option value="גויאבה תרבותית"><option value="ג'ינקו דו-אונתי"><option value="גרווילאה חסונה"><option value="גרדיניה יסמינית"><option value="דובדבן הציפורים"><option value="דולב מזרחי"><option value="דולב מקסיקני"><option value="דום מצרי"><option value="דקל הטבעת"><option value="דקל הקוקוס"><option value="דקל המניפה (וושינגטוניה)"><option value="דקל התמר"><option value="דקל קנרי"><option value="דקל קוקוס"><option value="דקל משולש"><option value="דקל פניקס"><option value="דקל רובליני"><option value="דק פרי"><option value="דק-פרי זקוף"><option value="היביסקוס סתיוני"><option value="היביסקוס סיני"><option value="היביסקוס צהוב"><option value="ויסטריה סינית"><option value="וושינגטוניה חוטנית"><option value="וושינגטוניה חסונה"><option value="וורד תרבותי"><option value="ויטניה"><option value="זית אירופי"><option value="זקום מצרי"><option value="חבוש תרבותי"><option value="חרוב מצוי"><option value="חזרן (במבוק)"><option value="טיאטיאה (פיקוס)"><option value="טיקטומה"><option value="טבבויה איפה"><option value="טבבויה זהובה"><option value="טבבויה ורודה"><option value="טכומית"><option value="ינבוט"><option value="יסמין"><option value="יערה"><option value="יצהרון מכסיף"><option value="כוריזיה בקבוקית"><option value="כוריזיה הדורה"><option value="כליל החורש"><option value="כסיה אבובנית"><option value="כסיית פיסטולה"><option value="כתלית יהודה"><option value="לימון תרבותי"><option value="לגרסטרמיה הודית"><option value="לוונדר"><option value="לוקומה"><option value="ליגוסטרום יפני"><option value="ליגוסטרום מבריק"><option value="לימון מתוק"><option value="לימונית"><option value="לנטנה"><option value="לפידוזמיה"><option value="מגנוליה גדולת-פרחים"><option value="מילה סורית"><option value="מילה לבנה"><option value="מילה פנסילבנית"><option value="מילת השלושה"><option value="מללויקה"><option value="מנדרינה"><option value="מנגו הודי"><option value="מסויה"><option value="מעוז"><option value="מקדמיה"><option value="מרווה"><option value="מרקמיה"><option value="משי פנסי"><option value="משמש"><option value="נאדי"><option value="נוני"><option value="נחליאלי"><option value="נימיה"><option value="נסוסה"><option value="סבוניה"><option value="סהרון"><option value="סיגלון עלי-מימוסה"><option value="סיזיגיון אוסטרלי"><option value="סיזיגיון ימבולן"><option value="סיזיגיון מכבדי"><option value="סייגרוס רומנזוף"><option value="סיסם הודי"><option value="ספיון השעוה"><option value="סקויה נאה"><option value="עוזרר אדום"><option value="עוזרר קוצני"><option value="ער אציל"><option value="ערבה מחודדת"><option value="ערבה צריפית"><option value="ערבת בבל"><option value="ערער רם"><option value="פארון הכף"><option value="פודוקרפוס גדול-עלים"><option value="פודוקרפוס מגלי"><option value="פולובניית פרוטון"><option value="פונגמיה מנוצה"><option value="פטרוקריה מיילנית"><option value="פיג'ואה תרבותית"><option value="פיטולקה דו-ביתית"><option value="פיטוספורום גלוני"><option value="פיטוספורום יפני"><option value="פיקוס אוזני"><option value="פיקוס בנגלי"><option value="פיקוס בנימינה"><option value="פיקוס הגומי"><option value="פיקוס השדרות"><option value="פיקוס השקמה "><option value="פיקוס התאנה"><option value="פיקוס חלוד"><option value="פיקוס כינורי"><option value="פיקוס מעוקם"><option value="פיקוס צר-עלים"><option value="פיקוס קדוש"><option value="פירמיאנה פשוטה"><option value="פלומריה ריחנית"><option value="פלפלון בכות"><option value="פלפלון דמוי-אלה"><option value="פנסית דו-נוצתית"><option value="פנסית מכבדית"><option value="פפיה מצויה"><option value="פרינסקיה"><option value="פרוסופיס"><option value="פרנסיסקו"><option value="צאלון נאה"><option value="צפצפה מצויה"><option value="צפצפת הפרת"><option value="צפצפה מכסיפה"><option value="צפצפה שחורה"><option value="צפורן"><option value="ציפור גן עדן"><option value="ציקס מופשל"><option value="צלף קוצני"><option value="קולאוטריה (פנסית)"><option value="קומקווט (תפוז סיני)"><option value="קזוארינה דקיקה"><option value="קזוארינה מצויה"><option value="קטלב מצוי"><option value="קינמון"><option value="קיסוס חורש"><option value="קיסוסית קוצנית"><option value="קיקיון מצוי"><option value="קלמנטינה"><option value="קלסטמון אדום"><option value="קלסטמון לימוני"><option value="קנבוס"><option value="קנציה"><option value="קסטנוספרמום (אגוז אוסטרלי)"><option value="קרוטון"><option value="קרמבולה"><option value="רוביניה בת-שיטה"><option value="רוזמרין רפואי"><option value="רימון מצוי"><option value="רפיס"><option value="רפידופורה"><option value="שזיף דובדבני"><option value="שזיף תרבותי"><option value="שיטה"><option value="שיטה כחלחלה"><option value="שיטה סלילנית"><option value="שיזף מצוי"><option value="שסק יפני"><option value="שקמה (פיקוס)"><option value="שקד מצוי"><option value="שקד תרבותי"><option value="תאנה (פיקוס)"><option value="תאנה תרבותית"><option value="תות לבן"><option value="תות בכות"><option value="תות נייר"><option value="תות שחור"><option value="תמר מצוי"><option value="תמר קנרי"><option value="תפוז מצוי"><option value="תפוז סיני"><option value="תפוז שמוטי"><option value="תפוח תרבותי"><option value="תפוח סדום"><option value="תרוד"><option value="UNKNOWNE">
-            </datalist>
+                <option value="אבוקדו אמריקני"><option value="אגוז המלך"><option value="אגס סורי"><option value="אגס קלרי"><option value="אדר מצוי"><option value="אוג הבורסקאים"><option value="אורן ירושלים"><option value="אורן הצנובר"><option value="אורן קנרי"><option value="אזדרכת מצויה"><option value="איקליפטוס המקור"><option value="אלה אטלנטית"><option value="אלה ארץ-ישראלית"><option value="אלון מצוי"><option value="אלון התבור"><option value="אלון התולע"><option value="אלון פקאן (קאריה)"><option value="ארז הלבנון"><option value="אשל היאור (הפרקים)"><option value="ברוש מצוי"><option value="ברוש מצוי צריפי"><option value="ברכיכיטון צפצפתי"><option value="ג'קראנדה (סיגלון)"><option value="דולב מזרחי"><option value="דקל התמר"><option value="וושינגטוניה חסונה"><option value="זית אירופי"><option value="חרוב מצוי"><option value="כליל החורש"><option value="צאלון נאה"><option value="צפצפה מצויה"><option value="שקמה (פיקוס)"><option value="תות לבן"><option value="תמר מצוי">
+                </datalist>
 
             <div class="row">
                 <div><label>גובה (מ')</label><input type="number" id="height" step="0.1" inputmode="decimal"></div>
@@ -58,7 +59,7 @@
             <div class="row">
                 <div><label>קוטר גזע 3</label><input type="number" id="d3" step="0.1" inputmode="decimal"></div>
                 <div>
-                    <label>מצב בריאות (0-5)</label>
+                    <label>בריאות (0-5)</label>
                     <select id="health"><option>0</option><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select>
                 </div>
             </div>
@@ -82,13 +83,13 @@
 
         <div id="resultArea" class="hidden card">
             <h3 style="color:#34c759;">הסקר הועלה בהצלחה!</h3>
-            <div id="linkArea" style="background:#eee; padding:10px; word-break:break-all; cursor:pointer;" onclick="copyLink()"></div>
+            <div id="linkArea" onclick="copyLink()">לחצי כאן להעתקת הקישור</div>
             <button onclick="location.reload()" style="background:#eee;">סקר חדש</button>
         </div>
     </div>
 
     <script>
-        const GOOGLE_URL = 'https://script.google.com/macros/s/AKfycbzFghppPIKu_zHoh_1vl1680Ol97oYGUutVk-3obrZ8N0QYJDFS2oAFE943Z__McAAv/exec';
+        const GOOGLE_URL = 'https://script.google.com/macros/s/AKfycbz48yfekLbezswQtdKrcCjrgmWQRVPwODaVrPbGbSMoANm4yZ4A-0n-ZQwOUvQpTX5X/exec';
         let db = []; 
         let uploadQueue = []; 
         let isUploading = false;
@@ -111,18 +112,11 @@
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         const MAX_SIZE = 2000; // איכות גבוהה פי 2
-                        let w = img.width;
-                        let h = img.height;
-                        
-                        if (w > h) {
-                            if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; }
-                        } else {
-                            if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; }
-                        }
-                        
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } }
+                        else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
                         canvas.width = w; canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         res(canvas.toDataURL('image/jpeg', 0.8));
                     };
                     img.src = e.target.result;
@@ -155,11 +149,8 @@
             const uploadItem = { ...treeData };
             uploadItem.img1 = await processImage(f1);
             uploadItem.extraImages = [];
-            
-            const ex1Res = await processImage(ex1);
-            if (ex1Res) uploadItem.extraImages.push(ex1Res);
-            const ex2Res = await processImage(ex2);
-            if (ex2Res) uploadItem.extraImages.push(ex2Res);
+            const ex1Res = await processImage(ex1); if (ex1Res) uploadItem.extraImages.push(ex1Res);
+            const ex2Res = await processImage(ex2); if (ex2Res) uploadItem.extraImages.push(ex2Res);
 
             uploadQueue.push(uploadItem);
             db.push(treeData); 
@@ -173,16 +164,12 @@
             if (isUploading || uploadQueue.length === 0) return;
             isUploading = true;
             document.getElementById('uploadStatus').style.display = 'block';
-            
             while (uploadQueue.length > 0) {
                 document.getElementById('queueCount').innerText = uploadQueue.length;
-                const item = uploadQueue[0];
                 try {
-                    await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(item) });
+                    await fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(uploadQueue[0]) });
                     uploadQueue.shift();
-                } catch (e) {
-                    await new Promise(r => setTimeout(r, 3000));
-                }
+                } catch (e) { await new Promise(r => setTimeout(r, 3000)); }
                 document.getElementById('queueCount').innerText = uploadQueue.length;
             }
             document.getElementById('uploadStatus').style.display = 'none';
@@ -191,7 +178,7 @@
 
         function updateUI() {
             document.getElementById('statusCount').innerText = "עצים שנסקרו: " + db.length;
-            document.getElementById('historyList').innerHTML = db.slice().reverse().map((t, i) => `
+            document.getElementById('historyList').innerHTML = db.slice().reverse().map((t) => `
                 <div class="history-item">
                     <span><b>#${t.treeNum}</b> - ${t.species || ''}</span>
                     <span style="color: #34c759;">✓</span>
@@ -205,14 +192,24 @@
         }
 
         async function finishSurvey() {
-            if (uploadQueue.length > 0) return alert("המתיני לסיום העלאת התמונות...");
+            if (uploadQueue.length > 0) return alert("המתיני לסיום העלאת התמונות ברקע...");
             const btn = document.getElementById('finalBtn');
-            btn.disabled = true; btn.innerText = "מעלה אקסל...";
-            const res = await fetch(GOOGLE_URL, { method: 'POST', body: JSON.stringify({ isFinal: true, projectName: currentProject, db: db }) });
-            const link = await res.text();
-            document.getElementById('linkArea').innerText = link;
-            document.getElementById('resultArea').classList.remove('hidden');
-            btn.classList.add('hidden');
+            btn.disabled = true; btn.innerText = "יוצר אקסל סופי...";
+            
+            // אופטימיזציה: שולחים רק טקסט, ללא תמונות
+            try {
+                const res = await fetch(GOOGLE_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ isFinal: true, projectName: currentProject, db: db }) 
+                });
+                const link = await res.text();
+                document.getElementById('linkArea').innerText = link;
+                document.getElementById('resultArea').classList.remove('hidden');
+                btn.classList.add('hidden');
+            } catch(e) { 
+                alert("תקלה ביצירת האקסל. נסי שוב.");
+                btn.disabled = false;
+            }
         }
 
         function copyLink() {
